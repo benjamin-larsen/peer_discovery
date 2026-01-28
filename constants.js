@@ -1,0 +1,30 @@
+const HEADER_SIZE = 4;
+const SIGNATURE_SIZE = 32;
+const MAX_PAYLOAD = 1024;
+
+const MIN_AUTH_PACKET = HEADER_SIZE + SIGNATURE_SIZE;
+const MAX_PACKET = HEADER_SIZE + SIGNATURE_SIZE + MAX_PAYLOAD;
+
+const ACTIVE_CONN = 0;
+const PASSIVE_CONN = 1;
+
+const CONNECTION_STATES = {
+  CONNECTING: 0, // connReceived: false
+  CONNECTED: 1, // connReceived: true
+  PROMOTING: 2 // connReceived: true and transition from PASSIVE -> ACTIVE (pinging)
+};
+
+const NETWORK_MAGIC = 0xbe48e224b3ae4681n;
+const PROTOCOl_VERSION = 0;
+
+module.exports = {
+  HEADER_SIZE,
+  SIGNATURE_SIZE,
+  MIN_AUTH_PACKET,
+  MAX_PACKET,
+  ACTIVE_CONN,
+  PASSIVE_CONN,
+  NETWORK_MAGIC,
+  PROTOCOl_VERSION,
+  CONNECTION_STATES
+};
