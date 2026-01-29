@@ -90,8 +90,6 @@ function processConnect(connInfo, message) {
   connObj.externalAttempt = flags.attempts;
   connObj.connState = CONNECTION_STATES.CONNECTED;
 
-  console.log({isNew, connObj})
-
   if (!flags.receivedConn) {
     const payload = encodeConnection({
       version: PROTOCOl_VERSION,

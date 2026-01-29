@@ -7,7 +7,7 @@ const { ACTIVE_CONN, HEADER_SIZE, MAX_PACKET, PASSIVE_CONN, PROTOCOl_VERSION, NE
 const { decodeMessage, encodeMessage, MSG_CONNECT, MSG_PING, MSG_PONG } = require("./messages.js");
 const { newConnection } = require("./connectManager.js");
 const { encodeConnectionFlags, encodeConnection, processConnect } = require("./messages/connect.js");
-const { encodePing, processPing } = require("./messages/ping.js");
+const { encodePing, processPing, pingActive, pingPassive } = require("./messages/ping.js");
 
 class Client {
   constructor(getTcpInfo, udpAddr, udpPort) {
@@ -20,22 +20,12 @@ class Client {
     this.udpServer = dgram.createSocket({ type: 'udp6' });
     this.udpServer.bind(udpPort, udpAddr);
 
-    setTimeout(() => {
-      //return;
-      const payload = encodePing();
+    setInterval(() => {
+      this.pingActive();
 
-      for (const [connStr, connObj] of this.connections) {
-        if (!connObj.sharedSecret) continue;
-
-        const { address, port } = decodeAddress(connStr);
-
-        const message = encodeMessage({
-          msgType: MSG_PING,
-          msgFlags: 0
-        }, connObj.sharedSecret, payload);
-
-        this.send(message, port, address);
-      }
+      setTimeout(() => {
+        this.pingPassive();
+      }, 500);
     }, 1000);
 
     this.udpServer.on("message", (buf, sender) => {
@@ -158,6 +148,9 @@ class Client {
     }
   }
 }
+
+Client.prototype.pingActive = pingActive;
+Client.prototype.pingPassive = pingPassive;
 
 Client.prototype.processConnect = processConnect;
 Client.prototype.processPing = processPing;

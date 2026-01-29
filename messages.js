@@ -33,6 +33,7 @@ function isValidMessage(header, payload) {
       return payload.length == 8;
     }
 
+    case MSG_REQ_PEERS:
     case MSG_PONG: {
       return payload.length == 0;
     }
