@@ -1,5 +1,5 @@
 const { newConnection, resetConnection } = require("../connectManager.js");
-const { NETWORK_MAGIC, PASSIVE_CONN, PROTOCOl_VERSION, CONNECTION_STATES } = require("../constants.js");
+const { NETWORK_MAGIC, PASSIVE_CONN, PROTOCOl_VERSION, CONNECTION_FLAGS } = require("../constants.js");
 const { encodeMessage, MSG_CONNECT } = require("../messages.js");
 const { x25519 } = require("@noble/curves/ed25519.js");
 const { isTimestampValid } = require("../utils.js");
@@ -88,7 +88,7 @@ function processConnect(connInfo, message) {
 
   connObj.externalTimestamp = payload.timestamp;
   connObj.externalAttempt = flags.attempts;
-  connObj.connState = CONNECTION_STATES.CONNECTED;
+  connObj.flags |= CONNECTION_FLAGS.CONNECTED;
 
   if (!flags.receivedConn) {
     const payload = encodeConnection({

@@ -1,4 +1,5 @@
 const ipaddr = require('ipaddr.js');
+const { blake3 } = require('@noble/hashes/blake3.js');
 
 function normalizeAddressDetailed(address, port) {
   const addr = ipaddr.process(address);
@@ -41,8 +42,40 @@ function decodeAddress(address) {
   }
 }
 
+function addressToPeerBuf(addressStr) {
+  const { address, port } = decodeAddress(addressStr);
+
+  let parsed = ipaddr.process(address);
+
+  if (parsed.kind() == "ipv4") {
+    parsed = parsed.isIPv4MappedAddress();
+  }
+
+  const buffer = Buffer.alloc(18);
+  buffer.set(Buffer.from(parsed.toByteArray()))
+  buffer.writeUInt16LE(port, 16);
+
+  return buffer;
+}
+
+function getAddressTopology(address, random) {
+  let buf = Buffer.isBuffer(address) ? address : addressToPeerBuf(address);
+
+  const hash = blake3(buf, { key: Buffer.from(random) });
+
+  let sum = 0;
+
+  for (var i = 0; i < 32; i++) {
+    sum ^= hash[i];
+  }
+
+  return sum & 3;
+}
+
 module.exports = {
   normalizeAddressDetailed,
   normalizeAddress,
-  decodeAddress
+  decodeAddress,
+  addressToPeerBuf,
+  getAddressTopology
 }

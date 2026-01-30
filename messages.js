@@ -6,7 +6,8 @@ const MSG_PING = 1;
 const MSG_PONG = 2;
 const MSG_REQ_PEERS = 3;
 const MSG_PEERS = 4;
-const MSG_ADVERTISE = 5;
+const MSG_REQ_CONN = 5;
+const MSG_CONN = 6;
 
 function decodeHeader(buffer) {
   return {
@@ -36,6 +37,10 @@ function isValidMessage(header, payload) {
     case MSG_REQ_PEERS:
     case MSG_PONG: {
       return payload.length == 0;
+    }
+
+    case MSG_PEERS: {
+      return true;
     }
 
     default: {
@@ -91,5 +96,6 @@ module.exports = {
   MSG_PONG,
   MSG_REQ_PEERS,
   MSG_PEERS,
-  MSG_ADVERTISE,
+  MSG_REQ_CONN,
+  MSG_CONN
 };

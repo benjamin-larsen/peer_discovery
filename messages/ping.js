@@ -1,4 +1,4 @@
-const { CONNECTION_STATES, ACTIVE_CONN, PASSIVE_CONN } = require("../constants.js");
+const { CONNECTION_FLAGS, ACTIVE_CONN, PASSIVE_CONN } = require("../constants.js");
 const { encodeMessage, MSG_PONG, MSG_PING } = require("../messages.js");
 const { decodeAddress } = require("../net-utils.js");
 const { isTimestampValid, sleep } = require("../utils.js");
@@ -37,11 +37,11 @@ function processPing(connObj, connInfo, payload) {
 
 async function pingGroup(client, timeLimit, type, attempts, onFail) {
   const activeConnections = [...client.connections].filter(([_, connection]) => {
-    if (connection.connState !== CONNECTION_STATES.CONNECTED) return false;
+    if ((connection.flags & (CONNECTION_FLAGS.CONNECTED | CONNECTION_FLAGS.PING_LOCKED)) !== CONNECTION_FLAGS.CONNECTED) return;
     if (connection.type !== type) return false;
 
     // Lock connection
-    connection.connState = CONNECTION_STATES.PROMOTING;
+    connection.flags |= CONNECTION_FLAGS.PING_LOCKED;
 
     return true;
   });
@@ -60,7 +60,7 @@ async function pingGroup(client, timeLimit, type, attempts, onFail) {
 
       if (timeDiff < timeLimit) {
         // Unlock connection
-        connection.connState = CONNECTION_STATES.CONNECTED;
+        connection.flags &= ~CONNECTION_FLAGS.PING_LOCKED;
 
         activeConnections[index] = null;
         continue;
@@ -89,7 +89,7 @@ async function pingGroup(client, timeLimit, type, attempts, onFail) {
     const timeDiff = now - connection.lastSeen;
 
     // Unlock connection
-    connection.connState = CONNECTION_STATES.CONNECTED;
+    connection.flags &= ~CONNECTION_FLAGS.PING_LOCKED;
 
     if (timeDiff >= 10000) {
       onFail(client, connStr, connection);

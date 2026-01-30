@@ -8,14 +8,19 @@ const MAX_PACKET = HEADER_SIZE + SIGNATURE_SIZE + MAX_PAYLOAD;
 const ACTIVE_CONN = 0;
 const PASSIVE_CONN = 1;
 
-const CONNECTION_STATES = {
-  CONNECTING: 0, // connReceived: false
-  CONNECTED: 1, // connReceived: true
-  PROMOTING: 2 // connReceived: true and transition from PASSIVE -> ACTIVE (pinging)
+const CONNECTION_FLAGS = {
+  CONNECTED:       (1 << 0),
+  PING_LOCKED:     (1 << 1),
+  EXPECTING_PEERS: (1 << 2),
+  EXPECTING_CONN:  (1 << 3),
 };
 
 const NETWORK_MAGIC = 0xbe48e224b3ae4681n;
 const PROTOCOl_VERSION = 0;
+
+const MAX_ACTIVE_INTERNAL = 2;
+const MAX_ACTIVE_EXTERNAL = 1;
+const MAX_ACTIVE = MAX_ACTIVE_INTERNAL + MAX_ACTIVE_EXTERNAL;
 
 module.exports = {
   HEADER_SIZE,
@@ -24,7 +29,10 @@ module.exports = {
   MAX_PACKET,
   ACTIVE_CONN,
   PASSIVE_CONN,
+  CONNECTION_FLAGS,
   NETWORK_MAGIC,
   PROTOCOl_VERSION,
-  CONNECTION_STATES
+  MAX_ACTIVE_INTERNAL,
+  MAX_ACTIVE_EXTERNAL,
+  MAX_ACTIVE
 };
